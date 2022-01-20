@@ -1,8 +1,5 @@
 package ua.kpi.services;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalDouble;
@@ -42,9 +39,53 @@ public class StudentService {
     return studentRepository.findAll()
         .stream()
         .filter( student -> student.getExams().stream()
-                                  .filter( exam -> exam.getType() == examType &&
-                                                   exam.getScore() >= passRate )
-                                  .findAny().isPresent() )
+                                  .anyMatch(exam -> exam.getType() == examType &&
+                                                   exam.getScore() >= passRate ))
         .collect(Collectors.toList());
+  }
+
+  public List<Student> findWithEnoughExams(double passRate) {
+    return studentRepository.findAll()
+            .stream()
+            .filter(student -> student.getExams().stream()
+                    .anyMatch(exam -> exam.getType() == Type.MATH && exam.getScore()>=passRate) &&
+                    student.getExams().stream()
+                            .anyMatch(exam -> exam.getType() == Type.ENGLISH && exam.getScore()>=passRate))
+            .collect(Collectors.toList());
+  }
+
+  public Optional<Student> findFirstWithoutSpecifiedExam(Type examType) {
+    return studentRepository.findAll()
+            .stream()
+            .filter( student -> student.getExams().stream()
+                    .allMatch(exam -> exam.getType() != examType ))
+            .findFirst();
+    /*List<Student> students = studentRepository.findAll();
+    for (final Student student : students) {
+      for (final Exam exam : student.getExams()) {
+        if (exam.getType() == examType) {
+          continue;
+        }
+        return Optional.of(student);
+      }
+    }
+    return Optional.empty();*/
+  }
+
+  public List<Student> findWithPassRatesAndExamType(Type examType, double ratingPassRate) {
+    return studentRepository.findAll()
+            .stream()
+            .filter(student -> student.getRating() >= ratingPassRate &&
+                    student.getExams()
+                            .stream()
+                            .anyMatch(exam -> exam.getType() == examType))
+            .collect(Collectors.toList());
+  }
+
+  public List<Student> findWithEnoughExamsCount(double requiredExamsCount) {
+    return studentRepository.findAll()
+            .stream()
+            .filter(student -> student.getExams().size() == requiredExamsCount)
+            .collect(Collectors.toList());
   }
 }

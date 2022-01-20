@@ -50,14 +50,6 @@ class StudentServiceTest {
   }
 
   @Test
-  void should_find_student_with_max_english(){
-    StudentRepository studentRepository = createStudentRepositoryWithAllStudents();
-    StudentService studentService = new StudentService(studentRepository);
-    Optional<Student> studentOpt = studentService.findWithMaxExam(Type.ENGLISH);
-    assertEquals(Optional.of(thirdStudent) , studentOpt );
-  }
-
-  @Test
   void should_not_find_student_with_max_math(){
     StudentRepository studentRepository = mock(StudentRepository.class);
     when(studentRepository.findAll()).thenReturn(Arrays.asList(firstStudent,fourthStudent));
@@ -82,6 +74,54 @@ class StudentServiceTest {
     final double englishPassRate = 190.0;
     List<Student> studentsWithEnglish = studentService.findWithEnoughExam(Type.ENGLISH, englishPassRate);
     assertThat(studentsWithEnglish, hasSize(0));
+  }
+
+  // Task 1
+  @Test
+  void should_find_student_who_does_not_have_math_grade(){
+    StudentRepository studentRepository = createStudentRepositoryWithAllStudents();
+    StudentService studentService = new StudentService(studentRepository);
+    Optional<Student> studentOpt = studentService.findFirstWithoutSpecifiedExam(Type.MATH);
+    assertEquals(Optional.of(firstStudent) , studentOpt );
+  }
+
+  // Task 2
+  @Test
+  void should_find_student_with_math_and_eng_exams_both_enough_grade(){
+    StudentRepository studentRepository = createStudentRepositoryWithAllStudents();
+    StudentService studentService = new StudentService(studentRepository);
+    final double passRate = 180.0;
+    List<Student> studentsWithPassGrades = studentService.findWithEnoughExams(passRate);
+    assertThat(studentsWithPassGrades, hasSize(2));
+  }
+
+  // Task 3
+  @Test
+  void should_find_student_with_max_english(){
+    StudentRepository studentRepository = createStudentRepositoryWithAllStudents();
+    StudentService studentService = new StudentService(studentRepository);
+    Optional<Student> studentOpt = studentService.findWithMaxExam(Type.ENGLISH);
+    assertEquals(Optional.of(thirdStudent) , studentOpt );
+  }
+
+  // Task 4
+  @Test
+  void should_find_students_with_enough_rate_and_english_exam(){
+    StudentRepository studentRepository = createStudentRepositoryWithAllStudents();
+    StudentService studentService = new StudentService(studentRepository);
+    final double ratingPassRate = 11.0;
+    List<Student> foundStudents = studentService.findWithPassRatesAndExamType(Type.ENGLISH, ratingPassRate);
+    assertThat(foundStudents, hasSize(2));
+  }
+
+  // Task 5
+  @Test
+  void should_find_students_with_enough_exams_count(){
+    StudentRepository studentRepository = createStudentRepositoryWithAllStudents();
+    StudentService studentService = new StudentService(studentRepository);
+    final double requiredExamsCount = 2.0;
+    List<Student> foundStudents = studentService.findWithEnoughExamsCount(requiredExamsCount);
+    assertThat(foundStudents, hasSize(2));
   }
 
 
